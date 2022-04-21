@@ -1,5 +1,5 @@
 {
-    "name": "friendsofdoctrine/dbal-clickhouse",
+    "name": "phucnh-nfq/dbal-clickhouse",
     "type": "library",
     "description": "Doctrine DBAL driver for ClickHouse",
     "keywords": [
@@ -8,7 +8,7 @@
         "clickhouse",
         "driver"
     ],
-    "homepage": "http://github.com/friendsofdoctrine/dbal-clickhouse",
+    "homepage": "http://github.com/phucnh-nfq/dbal-clickhouse",
     "license": "MIT",
     "authors": [
         {
@@ -21,15 +21,15 @@
         }
     ],
     "require": {
-        "php": "^7.1",
+        "php": "^7.1|^8.0",
         "ext-PDO": "*",
         "ext-pcre": "*",
         "doctrine/dbal": "^2.7",
-        "smi2/phpClickHouse": "^1.0"
+        "smi2/phpclickhouse": "^1.4"
     },
     "require-dev": {
-        "doctrine/coding-standard": "^4.0",
-        "phpunit/phpunit": "^7.0"
+        "doctrine/coding-standard": "^9.0",
+        "phpunit/phpunit": "^9.5"
     },
     "autoload": {
         "psr-4": {
