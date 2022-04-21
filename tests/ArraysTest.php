@@ -25,7 +25,7 @@ class ArraysTest extends TestCase
     /** @var  Connection */
     protected $connection;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->connection = CreateConnectionTest::createConnection();
         ArrayType::registerArrayTypes($this->connection->getDatabasePlatform());
