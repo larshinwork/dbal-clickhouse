@@ -65,7 +65,7 @@ class DbalTypeTest extends TestCase
         }
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->connection->exec('DROP TABLE test_dbal_type_table');
     }

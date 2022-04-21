@@ -43,7 +43,7 @@ class InsertTest extends TestCase
         }
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->connection->exec('DROP TABLE test_insert_table');
     }

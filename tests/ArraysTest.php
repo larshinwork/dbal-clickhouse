@@ -31,7 +31,7 @@ class ArraysTest extends TestCase
         ArrayType::registerArrayTypes($this->connection->getDatabasePlatform());
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->connection->exec('DROP TABLE test_array_table');
     }
