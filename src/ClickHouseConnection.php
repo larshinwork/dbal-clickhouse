@@ -14,20 +14,21 @@ declare(strict_types=1);
 
 namespace FOD\DBALClickHouse;
 
+use ClickHouseDB\Client;
 use ClickHouseDB\Client as Smi2CHClient;
 use ClickHouseDB\Exception\TransportException;
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\Result;
+use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use function array_merge;
-use function func_get_args;
 
 /**
  * ClickHouse implementation for the Connection interface.
  */
-class ClickHouseConnection implements Connection
+class ClickHouseConnection implements Connection, ServerInfoAwareConnection
 {
     /** @var Smi2CHClient */
     protected $smi2CHClient;
@@ -38,7 +39,10 @@ class ClickHouseConnection implements Connection
     /**
      * Connection constructor
      *
-     * @param mixed[] $params
+     * @param array $params
+     * @param string $username
+     * @param string $password
+     * @param AbstractPlatform $platform
      */
     public function __construct(
         array $params,
@@ -130,23 +134,7 @@ class ClickHouseConnection implements Connection
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public function errorCode()
-    {
-        throw new \LogicException('You need to implement ClickHouseConnection::errorCode()');
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function errorInfo()
-    {
-        throw new \LogicException('You need to implement ClickHouseConnection::errorInfo()');
-    }
-
-    /**
-     * {@inheritDoc}
+     * Ping server
      */
     public function ping()
     {
@@ -166,10 +154,10 @@ class ClickHouseConnection implements Connection
     }
 
     /**
-     * {@inheritDoc}
+     * @return Client
      */
-    public function requiresQueryForServerVersion()
+    public function getClickHouseClient(): Client
     {
-        return true;
+        return $this->smi2CHClient;
     }
 }
