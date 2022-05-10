@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace FOD\DBALClickHouse;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use function strtoupper;
 use function substr;
 use function trim;
@@ -25,33 +25,32 @@ use function trim;
 class Connection extends \Doctrine\DBAL\Connection
 {
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
-    public function executeUpdate($query, array $params = [], array $types = []) : int
+    public function executeStatement($sql, array $params = [], array $types = [])
     {
         // ClickHouse has no UPDATE or DELETE statements
-        $command = strtoupper(substr(trim($query), 0, 6));
+        $command = strtoupper(substr(trim($sql), 0, 6));
         if ($command === 'UPDATE' || $command === 'DELETE') {
-            throw new ClickHouseException('UPDATE and DELETE are not allowed in ClickHouse');
+            throw Exception::notSupported($command);
         }
-
-        return parent::executeUpdate($query, $params, $types);
+        return parent::executeStatement($sql, $params, $types);
     }
 
     /**
-     * @throws DBALException
+     * @throws Exception
      */
-    public function delete($tableExpression, array $identifier, array $types = []) : void
+    public function delete($table, array $criteria, array $types = []) : void
     {
-        throw DBALException::notSupported(__METHOD__);
+        throw Exception::notSupported(__METHOD__);
     }
 
     /**
-     * @throws DBALException
+     * @throws Exception
      */
-    public function update($tableExpression, array $data, array $identifier, array $types = []) : void
+    public function update($table, array $data, array $criteria, array $types = []) : void
     {
-        throw DBALException::notSupported(__METHOD__);
+        throw Exception::notSupported(__METHOD__);
     }
 
     /**
@@ -59,114 +58,114 @@ class Connection extends \Doctrine\DBAL\Connection
      */
 
     /**
-     * @throws DBALException
+     * @throws Exception
      */
     public function setTransactionIsolation($level) : void
     {
-        throw DBALException::notSupported(__METHOD__);
+        throw Exception::notSupported(__METHOD__);
     }
 
     /**
-     * @throws DBALException
+     * @throws Exception
      */
     public function getTransactionIsolation() : void
     {
-        throw DBALException::notSupported(__METHOD__);
+        throw Exception::notSupported(__METHOD__);
     }
 
     /**
-     * @throws DBALException
+     * @throws Exception
      */
     public function getTransactionNestingLevel() : void
     {
-        throw DBALException::notSupported(__METHOD__);
+        throw Exception::notSupported(__METHOD__);
     }
 
     /**
-     * @throws DBALException
+     * @throws Exception
      */
     public function transactional(\Closure $func) : void
     {
-        throw DBALException::notSupported(__METHOD__);
+        throw Exception::notSupported(__METHOD__);
     }
 
     /**
-     * @throws DBALException
+     * @throws Exception
      */
     public function setNestTransactionsWithSavepoints($nestTransactionsWithSavepoints) : void
     {
-        throw DBALException::notSupported(__METHOD__);
+        throw Exception::notSupported(__METHOD__);
     }
 
     /**
-     * @throws DBALException
+     * @throws Exception
      */
     public function getNestTransactionsWithSavepoints() : void
     {
-        throw DBALException::notSupported(__METHOD__);
+        throw Exception::notSupported(__METHOD__);
     }
 
     /**
-     * @throws DBALException
+     * @throws Exception
      */
     public function beginTransaction() : void
     {
-        throw DBALException::notSupported(__METHOD__);
+        throw Exception::notSupported(__METHOD__);
     }
 
     /**
-     * @throws DBALException
+     * @throws Exception
      */
     public function commit() : void
     {
-        throw DBALException::notSupported(__METHOD__);
+        throw Exception::notSupported(__METHOD__);
     }
 
     /**
-     * @throws DBALException
+     * @throws Exception
      */
     public function rollBack() : void
     {
-        throw DBALException::notSupported(__METHOD__);
+        throw Exception::notSupported(__METHOD__);
     }
 
     /**
-     * @throws DBALException
+     * @throws Exception
      */
     public function createSavepoint($savepoint) : void
     {
-        throw DBALException::notSupported(__METHOD__);
+        throw Exception::notSupported(__METHOD__);
     }
 
     /**
-     * @throws DBALException
+     * @throws Exception
      */
     public function releaseSavepoint($savepoint) : void
     {
-        throw DBALException::notSupported(__METHOD__);
+        throw Exception::notSupported(__METHOD__);
     }
 
     /**
-     * @throws DBALException
+     * @throws Exception
      */
     public function rollbackSavepoint($savepoint) : void
     {
-        throw DBALException::notSupported(__METHOD__);
+        throw Exception::notSupported(__METHOD__);
     }
 
     /**
-     * @throws DBALException
+     * @throws Exception
      */
     public function setRollbackOnly() : void
     {
-        throw DBALException::notSupported(__METHOD__);
+        throw Exception::notSupported(__METHOD__);
     }
 
     /**
-     * @throws DBALException
+     * @throws Exception
      */
     public function isRollbackOnly() : void
     {
-        throw DBALException::notSupported(__METHOD__);
+        throw Exception::notSupported(__METHOD__);
     }
 }
