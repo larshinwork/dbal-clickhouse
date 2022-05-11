@@ -12,6 +12,7 @@
 namespace FOD\DBALClickHouse\Tests;
 
 use ClickHouseDB\Exception\DatabaseException;
+use ClickHouseDB\Exception\QueryException;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
@@ -88,7 +89,7 @@ class CreateSchemaTest extends TestCase
         }
 
         $this->connection->executeStatement('DROP TABLE test_table');
-        $this->expectException(DatabaseException::class);
+        $this->expectException(QueryException::class);
         $this->connection->executeStatement('DROP TABLE test_table');
     }
 

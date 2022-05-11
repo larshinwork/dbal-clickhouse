@@ -73,9 +73,9 @@ class SelectTest extends TestCase
 
     public function testFetchNumSelect()
     {
-        $result = $this->connection->executeQuery('SELECT MAX(hits) FROM test_select_table');
+        $result = $this->connection->executeQuery('SELECT max(hits) FROM test_select_table');
         $result = $result->fetchAssociative();
-        $this->assertEquals(['MAX(hits)' => 707], $result);
+        $this->assertEquals(['max(hits)' => 707], $result);
     }
 
     public function testFetchAllBothSelect()
