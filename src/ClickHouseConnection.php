@@ -156,7 +156,7 @@ class ClickHouseConnection implements Connection, ServerInfoAwareConnection
     /**
      * @return Client
      */
-    public function getClickHouseClient(): Client
+    public function getNativeConnection(): Client
     {
         return $this->smi2CHClient;
     }

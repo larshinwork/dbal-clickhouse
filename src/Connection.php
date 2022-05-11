@@ -32,7 +32,7 @@ class Connection extends \Doctrine\DBAL\Connection
         // ClickHouse has no UPDATE or DELETE statements
         $command = strtoupper(substr(trim($sql), 0, 6));
         if ($command === 'UPDATE' || $command === 'DELETE') {
-            throw Exception::notSupported($command);
+            throw new ClickHouseException('UPDATE and DELETE are not allowed in ClickHouse');
         }
         return parent::executeStatement($sql, $params, $types);
     }

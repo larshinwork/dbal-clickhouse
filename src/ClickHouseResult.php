@@ -40,7 +40,7 @@ class ClickHouseResult implements Result
             return false;
         }
         $this->statement->getIterator()->next();
-        return array_values($data) + $data;
+        return $data;
     }
 
     /**

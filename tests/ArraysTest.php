@@ -11,6 +11,7 @@
 
 namespace FOD\DBALClickHouse\Tests;
 
+use Doctrine\DBAL\Schema\Table;
 use FOD\DBALClickHouse\Connection;
 use FOD\DBALClickHouse\Types\ArrayType;
 use PHPUnit\Framework\TestCase;
@@ -33,84 +34,84 @@ class ArraysTest extends TestCase
 
     public function tearDown(): void
     {
-        $this->connection->exec('DROP TABLE test_array_table');
+        $this->connection->executeStatement('DROP TABLE test_array_table');
     }
 
     public function testArrayInt8()
     {
         $this->createTempTable('array(int8)');
         $this->connection->insert('test_array_table', ['arr' => [1, 2, 3, 4, 5, 6, 7, 8]]);
-        $this->assertEquals(['arr' => [1, 2, 3, 4, 5, 6, 7, 8]], current($this->connection->fetchAll('SELECT arr FROM test_array_table')));
+        $this->assertEquals(['arr' => [1, 2, 3, 4, 5, 6, 7, 8]], current($this->connection->executeQuery('SELECT arr FROM test_array_table')->fetchAllAssociative()));
     }
 
     public function testArrayInt16()
     {
         $this->createTempTable('array(int16)');
         $this->connection->insert('test_array_table', ['arr' => [100, 2000, 30000]]);
-        $this->assertEquals(['arr' => [100, 2000, 30000]], current($this->connection->fetchAll('SELECT arr FROM test_array_table')));
+        $this->assertEquals(['arr' => [100, 2000, 30000]], current($this->connection->executeQuery('SELECT arr FROM test_array_table')->fetchAllAssociative()));
     }
 
     public function testArrayInt32()
     {
         $this->createTempTable('array(int32)');
         $this->connection->insert('test_array_table', ['arr' => [1000000, 2000000000]]);
-        $this->assertEquals(['arr' => [1000000, 2000000000]], current($this->connection->fetchAll('SELECT arr FROM test_array_table')));
+        $this->assertEquals(['arr' => [1000000, 2000000000]], current($this->connection->executeQuery('SELECT arr FROM test_array_table')->fetchAllAssociative()));
     }
 
     public function testArrayInt64()
     {
         $this->createTempTable('array(int64)');
         $this->connection->insert('test_array_table', ['arr' => [200000000000, 3000000000000000000]]);
-        $this->assertEquals(['arr' => [200000000000, 3000000000000000000]], current($this->connection->fetchAll('SELECT arr FROM test_array_table')));
+        $this->assertEquals(['arr' => [200000000000, 3000000000000000000]], current($this->connection->executeQuery('SELECT arr FROM test_array_table')->fetchAllAssociative()));
     }
 
     public function testArrayUInt8()
     {
         $this->createTempTable('array(uint8)');
         $this->connection->insert('test_array_table', ['arr' => [1, 2, 3, 4, 5, 6, 7, 8]]);
-        $this->assertEquals(['arr' => [1, 2, 3, 4, 5, 6, 7, 8]], current($this->connection->fetchAll('SELECT arr FROM test_array_table')));
+        $this->assertEquals(['arr' => [1, 2, 3, 4, 5, 6, 7, 8]], current($this->connection->executeQuery('SELECT arr FROM test_array_table')->fetchAllAssociative()));
     }
 
     public function testArrayUInt16()
     {
         $this->createTempTable('array(uint16)');
         $this->connection->insert('test_array_table', ['arr' => [100, 2000, 30000]]);
-        $this->assertEquals(['arr' => [100, 2000, 30000]], current($this->connection->fetchAll('SELECT arr FROM test_array_table')));
+        $this->assertEquals(['arr' => [100, 2000, 30000]], current($this->connection->executeQuery('SELECT arr FROM test_array_table')->fetchAllAssociative()));
     }
 
     public function testArrayUInt32()
     {
         $this->createTempTable('array(uint32)');
         $this->connection->insert('test_array_table', ['arr' => [1000000, 2000000000]]);
-        $this->assertEquals(['arr' => [1000000, 2000000000]], current($this->connection->fetchAll('SELECT arr FROM test_array_table')));
+        $this->assertEquals(['arr' => [1000000, 2000000000]], current($this->connection->executeQuery('SELECT arr FROM test_array_table')->fetchAllAssociative()));
     }
 
     public function testArrayUInt64()
     {
         $this->createTempTable('array(uint64)');
         $this->connection->insert('test_array_table', ['arr' => [200000000000, 3000000000000000000]]);
-        $this->assertEquals(['arr' => [200000000000, 3000000000000000000]], current($this->connection->fetchAll('SELECT arr FROM test_array_table')));
+        $this->assertEquals(['arr' => [200000000000, 3000000000000000000]], current($this->connection->executeQuery('SELECT arr FROM test_array_table')->fetchAllAssociative()));
     }
 
     public function testArrayFloat32()
     {
         $this->createTempTable('array(float32)');
         $this->connection->insert('test_array_table', ['arr' => [1.5, 10.5]]);
-        $this->assertEquals(['arr' => [1.5, 10.5]], current($this->connection->fetchAll('SELECT arr FROM test_array_table')));
+        $this->assertEquals(['arr' => [1.5, 10.5]], current($this->connection->executeQuery('SELECT arr FROM test_array_table')->fetchAllAssociative()));
     }
 
     public function testArrayFloat64()
     {
         $this->createTempTable('array(float64)');
         $this->connection->insert('test_array_table', ['arr' => [100.512, 10000.5814]]);
-        $this->assertEquals(['arr' => [100.512, 10000.5814]], current($this->connection->fetchAll('SELECT arr FROM test_array_table')));
+        $this->assertEquals(['arr' => [100.512, 10000.5814]], current($this->connection->executeQuery('SELECT arr FROM test_array_table')->fetchAllAssociative()));
     }
 
     public function testArrayString()
     {
         $this->createTempTable('array(string)');
         $this->connection->insert('test_array_table', ['arr' => ['foo', 'bar']]);
-        $this->assertEquals(['arr' => ['foo', 'bar']], current($this->connection->fetchAll('SELECT arr FROM test_array_table')));
+        $this->assertEquals(['arr' => ['foo', 'bar']], current($this->connection->executeQuery('SELECT arr FROM test_array_table')->fetchAllAssociative()));
     }
 
     public function testArrayDatetime()
@@ -118,7 +119,7 @@ class ArraysTest extends TestCase
         $dateTimeArray = [(new \DateTime('2000-01-01'))->format('Y-m-d H:i:s'), (new \DateTime('2017-05-05'))->format('Y-m-d H:i:s')];
         $this->createTempTable('array(datetime)');
         $this->connection->insert('test_array_table', ['arr' => $dateTimeArray]);
-        $this->assertEquals(['arr' => $dateTimeArray], current($this->connection->fetchAll('SELECT arr FROM test_array_table')));
+        $this->assertEquals(['arr' => $dateTimeArray], current($this->connection->executeQuery('SELECT arr FROM test_array_table')->fetchAllAssociative()));
     }
 
     public function testArrayDate()
@@ -126,15 +127,15 @@ class ArraysTest extends TestCase
         $datesArray = [(new \DateTime('2000-01-01'))->format('Y-m-d'), (new \DateTime('2017-05-05'))->format('Y-m-d')];
         $this->createTempTable('array(date)');
         $this->connection->insert('test_array_table', ['arr' => $datesArray]);
-        $this->assertEquals(['arr' => $datesArray], current($this->connection->fetchAll('SELECT arr FROM test_array_table')));
+        $this->assertEquals(['arr' => $datesArray], current($this->connection->executeQuery('SELECT arr FROM test_array_table')->fetchAllAssociative()));
     }
 
     protected function createTempTable($arrayType)
     {
-        $fromSchema = $this->connection->getSchemaManager()->createSchema();
+        $fromSchema = $this->connection->createSchemaManager()->createSchema();
         $toSchema = clone $fromSchema;
         if ($toSchema->hasTable('test_array_table') || $fromSchema->hasTable('test_array_table')) {
-            $this->connection->exec('DROP TABLE test_array_table');
+            $this->connection->executeStatement('DROP TABLE test_array_table');
         }
         $newTable = $toSchema->createTable('test_array_table');
 
@@ -142,7 +143,7 @@ class ArraysTest extends TestCase
         $newTable->addOption('engine', 'Memory');
 
         foreach ($fromSchema->getMigrateToSql($toSchema, $this->connection->getDatabasePlatform()) as $sql) {
-            $this->connection->exec($sql);
+            $this->connection->executeStatement($sql);
         }
     }
 }

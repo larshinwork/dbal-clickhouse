@@ -6,7 +6,7 @@
         </testsuite>
     </testsuites>
     <php>
-        <const name="phpunit_ch_host" value="localhost"/>
+        <const name="phpunit_ch_host" value="db"/>
         <const name="phpunit_ch_port" value="8123"/>
         <const name="phpunit_ch_user" value="default"/>
         <const name="phpunit_ch_password" value=""/>

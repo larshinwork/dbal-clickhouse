@@ -11,9 +11,12 @@
 
 namespace FOD\DBALClickHouse\Tests;
 
-use Doctrine\DBAL\DBALException;
+use ClickHouseDB\Exception\DatabaseException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use FOD\DBALClickHouse\ClickHouseSchemaManager;
 use FOD\DBALClickHouse\Connection;
 use FOD\DBALClickHouse\Types\ArrayType;
@@ -36,22 +39,22 @@ class CreateSchemaTest extends TestCase
 
     public function testGetSchemaManager()
     {
-        $this->assertInstanceOf(ClickHouseSchemaManager::class, $this->connection->getSchemaManager());
+        $this->assertInstanceOf(ClickHouseSchemaManager::class, $this->connection->createSchemaManager());
     }
 
     public function testCreateNewTableSQL()
     {
-        $fromSchema = $this->connection->getSchemaManager()->createSchema();
+        $fromSchema = $this->connection->createSchemaManager()->createSchema();
         $toSchema = clone $fromSchema;
 
         $newTable = $toSchema->createTable('test_table');
 
         $newTable->addColumn('id', 'integer', ['unsigned' => true]);
         $newTable->addColumn('payload', 'string');
-        $newTable->addColumn('oneVal', Type::FLOAT);
-        $newTable->addColumn('twoVal', Type::DECIMAL);
-        $newTable->addColumn('flag', Type::BOOLEAN);
-        $newTable->addColumn('mask', Type::SMALLINT);
+        $newTable->addColumn('oneVal', Types::FLOAT);
+        $newTable->addColumn('twoVal', Types::DECIMAL);
+        $newTable->addColumn('flag', Types::BOOLEAN);
+        $newTable->addColumn('mask', Types::SMALLINT);
         $newTable->addColumn('hash', 'string', ['length' => 32, 'fixed' => true]);
         $newTable->setPrimaryKey(['id']);
 
@@ -59,39 +62,39 @@ class CreateSchemaTest extends TestCase
         $this->assertEquals("CREATE TABLE test_table (EventDate Date DEFAULT today(), id UInt32, payload String, oneVal Float64, twoVal String, flag UInt8, mask Int16, hash FixedString(32)) ENGINE = ReplacingMergeTree(EventDate, (id), 8192)",
             implode(';', $migrationSQLs));
         foreach ($migrationSQLs as $sql) {
-            $this->connection->exec($sql);
+            $this->connection->executeStatement($sql);
         }
-        $this->connection->exec('DROP TABLE test_table');
+        $this->connection->executeStatement('DROP TABLE test_table');
     }
 
     public function testCreateDropTable()
     {
-        $fromSchema = $this->connection->getSchemaManager()->createSchema();
+        $fromSchema = $this->connection->createSchemaManager()->createSchema();
         $toSchema = clone $fromSchema;
 
         $newTable = $toSchema->createTable('test_table');
 
         $newTable->addColumn('id', 'integer', ['unsigned' => true]);
         $newTable->addColumn('payload', 'string');
-        $newTable->addColumn('oneVal', Type::FLOAT);
-        $newTable->addColumn('twoVal', Type::DECIMAL);
-        $newTable->addColumn('flag', Type::BOOLEAN);
-        $newTable->addColumn('mask', Type::SMALLINT);
+        $newTable->addColumn('oneVal', Types::FLOAT);
+        $newTable->addColumn('twoVal', Types::DECIMAL);
+        $newTable->addColumn('flag', Types::BOOLEAN);
+        $newTable->addColumn('mask', Types::SMALLINT);
         $newTable->addColumn('hash', 'string', ['length' => 32, 'fixed' => true]);
         $newTable->setPrimaryKey(['id']);
 
         foreach ($fromSchema->getMigrateToSql($toSchema, $this->connection->getDatabasePlatform()) as $sql) {
-            $this->connection->exec($sql);
+            $this->connection->executeStatement($sql);
         }
 
-        $this->connection->exec('DROP TABLE test_table');
-        $this->expectException(DBALException::class);
-        $this->connection->exec('DROP TABLE test_table');
+        $this->connection->executeStatement('DROP TABLE test_table');
+        $this->expectException(DatabaseException::class);
+        $this->connection->executeStatement('DROP TABLE test_table');
     }
 
     public function testIndexGranularityOption()
     {
-        $fromSchema = $this->connection->getSchemaManager()->createSchema();
+        $fromSchema = $this->connection->createSchemaManager()->createSchema();
         $toSchema = clone $fromSchema;
 
         $newTable = $toSchema->createTable('test_table');
@@ -106,14 +109,14 @@ class CreateSchemaTest extends TestCase
         $this->assertEquals("CREATE TABLE test_table (EventDate Date DEFAULT today(), id UInt32, payload String) ENGINE = ReplacingMergeTree(EventDate, (id), 4096)",
             $generatedSQL);
         foreach ($migrationSQLs as $sql) {
-            $this->connection->exec($sql);
+            $this->connection->executeStatement($sql);
         }
-        $this->connection->exec('DROP TABLE test_table');
+        $this->connection->executeStatement('DROP TABLE test_table');
     }
 
     public function testEngineMergeOption()
     {
-        $fromSchema = $this->connection->getSchemaManager()->createSchema();
+        $fromSchema = $this->connection->createSchemaManager()->createSchema();
         $toSchema = clone $fromSchema;
 
         $newTable = $toSchema->createTable('test_table');
@@ -128,14 +131,14 @@ class CreateSchemaTest extends TestCase
         $this->assertEquals("CREATE TABLE test_table (EventDate Date DEFAULT today(), id UInt32, payload String) ENGINE = MergeTree(EventDate, (id), 8192)",
             $generatedSQL);
         foreach ($migrationSQLs as $sql) {
-            $this->connection->exec($sql);
+            $this->connection->executeStatement($sql);
         }
-        $this->connection->exec('DROP TABLE test_table');
+        $this->connection->executeStatement('DROP TABLE test_table');
     }
 
     public function testEngineMemoryOption()
     {
-        $fromSchema = $this->connection->getSchemaManager()->createSchema();
+        $fromSchema = $this->connection->createSchemaManager()->createSchema();
         $toSchema = clone $fromSchema;
 
         $newTable = $toSchema->createTable('test_table');
@@ -149,14 +152,14 @@ class CreateSchemaTest extends TestCase
         $generatedSQL = implode(';', $migrationSQLs);
         $this->assertEquals("CREATE TABLE test_table (id UInt32, payload String) ENGINE = Memory", $generatedSQL);
         foreach ($migrationSQLs as $sql) {
-            $this->connection->exec($sql);
+            $this->connection->executeStatement($sql);
         }
-        $this->connection->exec('DROP TABLE test_table');
+        $this->connection->executeStatement('DROP TABLE test_table');
     }
 
     public function testEventDateColumnOption()
     {
-        $fromSchema = $this->connection->getSchemaManager()->createSchema();
+        $fromSchema = $this->connection->createSchemaManager()->createSchema();
         $toSchema = clone $fromSchema;
 
         $newTable = $toSchema->createTable('test_table');
@@ -172,21 +175,21 @@ class CreateSchemaTest extends TestCase
         $this->assertEquals("CREATE TABLE test_table (event_date Date DEFAULT today(), id UInt32, payload String) ENGINE = ReplacingMergeTree(event_date, (id), 8192)",
             $generatedSQL);
         foreach ($migrationSQLs as $sql) {
-            $this->connection->exec($sql);
+            $this->connection->executeStatement($sql);
         }
-        $this->connection->exec('DROP TABLE test_table');
+        $this->connection->executeStatement('DROP TABLE test_table');
     }
 
     public function testEventDateColumnBadOption()
     {
-        $fromSchema = $this->connection->getSchemaManager()->createSchema();
+        $fromSchema = $this->connection->createSchemaManager()->createSchema();
         $toSchema = clone $fromSchema;
 
         $newTable = $toSchema->createTable('test_table');
 
         $newTable->addColumn('id', 'integer', ['unsigned' => true]);
         $newTable->addColumn('payload', 'string');
-        $newTable->addColumn('event_date', Type::DATETIME, ['default' => 'toDate(now())']);
+        $newTable->addColumn('event_date', Types::DATETIME_MUTABLE, ['default' => 'toDate(now())']);
         $newTable->addOption('eventDateColumn', 'event_date');
         $newTable->setPrimaryKey(['id']);
 
@@ -196,21 +199,21 @@ class CreateSchemaTest extends TestCase
         $this->assertEquals("CREATE TABLE test_table (event_date Date DEFAULT today(), id UInt32, payload String) ENGINE = ReplacingMergeTree(event_date, (id), 8192)",
             $generatedSQL);
         foreach ($migrationSQLs as $sql) {
-            $this->connection->exec($sql);
+            $this->connection->executeStatement($sql);
         }
-        $this->connection->exec('DROP TABLE test_table');
+        $this->connection->executeStatement('DROP TABLE test_table');
     }
 
     public function testEventDateProviderColumnOption()
     {
-        $fromSchema = $this->connection->getSchemaManager()->createSchema();
+        $fromSchema = $this->connection->createSchemaManager()->createSchema();
         $toSchema = clone $fromSchema;
 
         $newTable = $toSchema->createTable('test_table');
 
         $newTable->addColumn('id', 'integer', ['unsigned' => true]);
         $newTable->addColumn('payload', 'string');
-        $newTable->addColumn('updated_at', Type::DATETIME);
+        $newTable->addColumn('updated_at', Types::DATETIME_MUTABLE);
         $newTable->addOption('eventDateProviderColumn', 'updated_at');
         $newTable->setPrimaryKey(['id']);
 
@@ -219,21 +222,21 @@ class CreateSchemaTest extends TestCase
         $this->assertEquals("CREATE TABLE test_table (EventDate Date DEFAULT toDate(updated_at), id UInt32, payload String, updated_at DateTime) ENGINE = ReplacingMergeTree(EventDate, (id), 8192)",
             $generatedSQL);
         foreach ($migrationSQLs as $sql) {
-            $this->connection->exec($sql);
+            $this->connection->executeStatement($sql);
         }
-        $this->connection->exec('DROP TABLE test_table');
+        $this->connection->executeStatement('DROP TABLE test_table');
     }
 
     public function testEventDateProviderColumnBadOption()
     {
-        $fromSchema = $this->connection->getSchemaManager()->createSchema();
+        $fromSchema = $this->connection->createSchemaManager()->createSchema();
         $toSchema = clone $fromSchema;
 
         $newTable = $toSchema->createTable('test_table');
 
         $newTable->addColumn('id', 'integer', ['unsigned' => true]);
         $newTable->addColumn('payload', 'string');
-        $newTable->addColumn('flag', Type::BOOLEAN);
+        $newTable->addColumn('flag', Types::BOOLEAN);
         $newTable->addOption('eventDateProviderColumn', 'flag');
         $newTable->setPrimaryKey(['id']);
 
@@ -243,29 +246,29 @@ class CreateSchemaTest extends TestCase
         $this->assertEquals("CREATE TABLE test_table (EventDate Date DEFAULT toDate(updated_at), id UInt32, payload String, updated_at DateTime) ENGINE = ReplacingMergeTree(EventDate, (id), 8192)",
             $generatedSQL);
         foreach ($migrationSQLs as $sql) {
-            $this->connection->exec($sql);
+            $this->connection->executeStatement($sql);
         }
-        $this->connection->exec('DROP TABLE test_table');
+        $this->connection->executeStatement('DROP TABLE test_table');
     }
 
     public function testListTableIndexes()
     {
-        $fromSchema = $this->connection->getSchemaManager()->createSchema();
+        $fromSchema = $this->connection->createSchemaManager()->createSchema();
         $toSchema = clone $fromSchema;
 
         $newTable = $toSchema->createTable('test_indexes_table');
 
         $newTable->addColumn('id', 'integer', ['unsigned' => true]);
         $newTable->addColumn('payload', 'string');
-        $newTable->addColumn('event_date', Type::DATE);
+        $newTable->addColumn('event_date', Types::DATE_MUTABLE);
         $newTable->addOption('eventDateColumn', 'event_date');
         $newTable->setPrimaryKey(['id', 'event_date']);
         $migrationSQLs = $fromSchema->getMigrateToSql($toSchema, $this->connection->getDatabasePlatform());
         foreach ($migrationSQLs as $sql) {
-            $this->connection->exec($sql);
+            $this->connection->executeStatement($sql);
         }
 
-        $indexes = $this->connection->getSchemaManager()->listTableIndexes('test_indexes_table');
+        $indexes = $this->connection->createSchemaManager()->listTableIndexes('test_indexes_table');
 
         $this->assertEquals(1, \count($indexes));
 
@@ -276,19 +279,19 @@ class CreateSchemaTest extends TestCase
             $this->assertTrue($index->isPrimary());
         }
 
-        $this->connection->exec('DROP TABLE test_indexes_table');
+        $this->connection->executeStatement('DROP TABLE test_indexes_table');
     }
 
     public function testTableWithSamplingExpression()
     {
-        $fromSchema = $this->connection->getSchemaManager()->createSchema();
+        $fromSchema = $this->connection->createSchemaManager()->createSchema();
         $toSchema = clone $fromSchema;
 
         $newTable = $toSchema->createTable('test_sampling_table');
 
         $newTable->addColumn('id', 'integer', ['unsigned' => true]);
         $newTable->addColumn('payload', 'string');
-        $newTable->addColumn('event_date', Type::DATE);
+        $newTable->addColumn('event_date', Types::DATE_MUTABLE);
         $newTable->addOption('eventDateColumn', 'event_date');
         $newTable->addOption('samplingExpression', 'intHash32(id)');
         $newTable->setPrimaryKey(['id', 'event_date']);
@@ -297,10 +300,10 @@ class CreateSchemaTest extends TestCase
         $this->assertEquals("CREATE TABLE test_sampling_table (event_date Date DEFAULT today(), id UInt32, payload String) ENGINE = ReplacingMergeTree(event_date, intHash32(id), (id, event_date, intHash32(id)), 8192)",
             $generatedSQL);
         foreach ($migrationSQLs as $sql) {
-            $this->connection->exec($sql);
+            $this->connection->executeStatement($sql);
         }
 
-        $indexes = $this->connection->getSchemaManager()->listTableIndexes('test_sampling_table');
+        $indexes = $this->connection->createSchemaManager()->listTableIndexes('test_sampling_table');
 
         $this->assertEquals(1, \count($indexes));
 
@@ -311,12 +314,12 @@ class CreateSchemaTest extends TestCase
             $this->assertTrue($index->isPrimary());
         }
 
-        $this->connection->exec('DROP TABLE test_sampling_table');
+        $this->connection->executeStatement('DROP TABLE test_sampling_table');
     }
 
     public function testNullableColumns()
     {
-        $fromSchema = $this->connection->getSchemaManager()->createSchema();
+        $fromSchema = $this->connection->createSchemaManager()->createSchema();
         ArrayType::registerArrayTypes($this->connection->getDatabasePlatform());
 
         $toSchema = clone $fromSchema;
@@ -336,7 +339,7 @@ class CreateSchemaTest extends TestCase
         $this->assertEquals("CREATE TABLE test_table_nullable (id UInt32, payload Nullable(String), price Nullable(Float64), transactions Array(Nullable(DateTime)), status Nullable(UInt8)) ENGINE = Memory",
             $generatedSQL);
         foreach ($migrationSQLs as $sql) {
-            $this->connection->exec($sql);
+            $this->connection->executeStatement($sql);
         }
         $this->connection->insert('test_table_nullable',
             [
@@ -380,8 +383,8 @@ class CreateSchemaTest extends TestCase
             ]);
 
         $this->assertEquals(2,
-            (int)$this->connection->fetchColumn("SELECT count() from test_table_nullable WHERE {$this->connection->getDatabasePlatform()->getIsNullExpression('status')}"));
+            (int)$this->connection->fetchOne("SELECT count() from test_table_nullable WHERE {$this->connection->getDatabasePlatform()->getIsNullExpression('status')}"));
 
-        $this->connection->exec('DROP TABLE test_table_nullable');
+        $this->connection->executeStatement('DROP TABLE test_table_nullable');
     }
 }

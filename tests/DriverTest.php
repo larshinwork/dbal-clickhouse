@@ -36,8 +36,8 @@ class DriverTest extends TestCase
     {
         $this->assertInstanceOf(ClickHouseConnection::class, $this->connection->getDriver()->connect(
             $this->connection->getParams(),
-            $this->connection->getUsername(),
-            $this->connection->getPassword()
+            phpunit_ch_user,
+            phpunit_ch_password
         ));
     }
 
@@ -48,16 +48,16 @@ class DriverTest extends TestCase
 
     public function testGetSchemaManager()
     {
-        $this->assertInstanceOf(ClickHouseSchemaManager::class, $this->connection->getDriver()->getSchemaManager($this->connection));
+        $this->assertInstanceOf(ClickHouseSchemaManager::class, $this->connection->getDriver()->getSchemaManager($this->connection, $this->connection->getDatabasePlatform()));
     }
 
     public function testGetName()
     {
-        $this->assertEquals('clickhouse', $this->connection->getDriver()->getName());
+        $this->assertEquals(phpunit_ch_dbname, $this->connection->getDatabase());
     }
 
     public function testGetDatabase()
     {
-        $this->assertEquals(phpunit_ch_dbname, $this->connection->getDriver()->getDatabase($this->connection));
+        $this->assertEquals(phpunit_ch_dbname, $this->connection->getDatabase());
     }
 }
